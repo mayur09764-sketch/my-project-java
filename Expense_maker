@@ -1,0 +1,190 @@
+import java.util.Scanner;
+
+public class SimpleExpenseMaker {
+
+   
+    private String employeeId;
+    private String date;
+    private String fromLocation;
+    private String toLocation;
+    private String foodAmount;
+    private String hotelAmount;
+    private String publicTransportAmount;
+    private String fuelAmount;
+    private String kilometersTraveled;
+
+    private Scanner scanner = new Scanner(System.in);
+    private static final String USERNAME = "admin";
+    private static final String PASSWORD = "password123";
+
+    // Main method to start the program
+    public static void main(String[] args) {
+        SimpleExpenseMaker app = new SimpleExpenseMaker();
+        app.start();
+    }
+
+    public void start() {
+        if (!login()) {
+            return; // Exit if login fails
+        }
+
+        boolean running = true;
+        while (running) {
+            printMenu();
+            try {
+                int choice = scanner.nextInt();
+                scanner.nextLine(); 
+
+                switch (choice) {
+                    case 1:
+                        addExpense();
+                        break;
+                    case 2:
+                        viewCurrentExpense();
+                        break;
+                    case 3:
+                        showTotalExpense(); 
+                        running = false;
+                        System.out.println("Exiting application. Goodbye!");
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (java.util.InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                scanner.nextLine(); 
+            }
+        }
+    }
+
+    private boolean login() {
+        System.out.println("--- Login ---");
+        System.out.print("Enter username: ");
+        String username = scanner.nextLine();
+        System.out.print("Enter password: ");
+        String password = scanner.nextLine();
+
+        if (username.equals(USERNAME) && password.equals(PASSWORD)) {
+            System.out.println("\nLogin successful! Welcome, " + USERNAME + ".");
+            return true;
+        } else {
+            System.out.println("\nInvalid username or password. Please try again.");
+            return false;
+        }
+    }
+
+    private void printMenu() {
+        System.out.println("\n--- Expense Maker Menu ---");
+        System.out.println("1. Add a new expense");
+        System.out.println("2. View the current expense");
+        System.out.println("3. Show total and exit");
+        System.out.print("Enter your choice: ");
+    }
+
+    private void addExpense() {
+        System.out.println("\n--- Add New Expense ---");
+
+        System.out.print("Enter Employee ID: ");
+        this.employeeId = scanner.nextLine();
+        
+        System.out.print("Enter Date (e.g., YYYY-MM-DD): ");
+        this.date = scanner.nextLine();
+
+        System.out.print("Enter Location (From): ");
+        this.fromLocation = scanner.nextLine();
+
+        System.out.print("Enter Location (To): ");
+        this.toLocation = scanner.nextLine();
+
+        System.out.println("\nFor any expense you did not have, please type 'na'.");
+        
+        System.out.print("Enter Food Amount: ");
+        this.foodAmount = scanner.nextLine();
+
+        System.out.print("Enter Hotel Amount: ");
+        this.hotelAmount = scanner.nextLine();
+        
+        System.out.println("Select Transport Type:");
+        System.out.println("1. Public Transport");
+        System.out.println("2. Private Vehicle");
+        System.out.print("Enter your choice (1 or 2): ");
+        int transportChoice = -1;
+        try {
+            transportChoice = scanner.nextInt();
+            scanner.nextLine(); 
+        } catch (java.util.InputMismatchException e) {
+            scanner.nextLine();
+        }
+
+        if (transportChoice == 1) {
+            System.out.print("Enter Public Transport Amount: ");
+            this.publicTransportAmount = scanner.nextLine();
+            this.fuelAmount = "na";
+            this.kilometersTraveled = "na";
+        } else if (transportChoice == 2) {
+            System.out.print("Enter Fuel Amount: ");
+            this.fuelAmount = scanner.nextLine();
+            System.out.print("Enter Total Kilometers Traveled: ");
+            this.kilometersTraveled = scanner.nextLine();
+            this.publicTransportAmount = "na";
+        } else {
+            System.out.println("Invalid choice. Skipping transport and fuel.");
+            this.publicTransportAmount = "na";
+            this.fuelAmount = "na";
+            this.kilometersTraveled = "na";
+        }
+
+        System.out.println("Expense added successfully!");
+    }
+
+    private void viewCurrentExpense() {
+        System.out.println("\n--- Current Expense ---");
+       
+        if (this.employeeId == null) {
+            System.out.println("No expense recorded yet.");
+        } else {
+            System.out.println("Employee ID: " + this.employeeId);
+            System.out.println("Date: " + this.date);
+            System.out.println("Route: " + this.fromLocation + " to " + this.toLocation);
+            System.out.println("Food: $" + this.foodAmount);
+            System.out.println("Hotel: $" + this.hotelAmount);
+            if (!this.publicTransportAmount.equalsIgnoreCase("na")) {
+                System.out.println("Public Transport: $" + this.publicTransportAmount);
+            }
+            if (!this.fuelAmount.equalsIgnoreCase("na")) {
+                System.out.println("Fuel: $" + this.fuelAmount);
+                System.out.println("Kilometers Traveled: " + this.kilometersTraveled + " km");
+            }
+        }
+    }
+
+    private void showTotalExpense() {
+        double total = 0.0;
+        if (this.employeeId == null) {
+            System.out.println("\nNo expenses to calculate.");
+            return;
+        }
+
+        System.out.println("\n--- Calculating Total Expense ---");
+
+        try {
+            if (!this.foodAmount.equalsIgnoreCase("na")) {
+                total += Double.parseDouble(this.foodAmount);
+            }
+            if (!this.hotelAmount.equalsIgnoreCase("na")) {
+                total += Double.parseDouble(this.hotelAmount);
+            }
+            if (!this.publicTransportAmount.equalsIgnoreCase("na")) {
+                total += Double.parseDouble(this.publicTransportAmount);
+            }
+            if (!this.fuelAmount.equalsIgnoreCase("na")) {
+                total += Double.parseDouble(this.fuelAmount);
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Warning: Could not parse an expense amount. Total may be inaccurate.");
+        }
+        
+        viewCurrentExpense(); 
+        System.out.println("\n--- TOTAL EXPENSE: $" + String.format("%.2f", total) + " ---");
+    }
+}
